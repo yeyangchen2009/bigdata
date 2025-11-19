@@ -36,6 +36,6 @@ https://raw.githubusercontent.com/yeyangchen2009/img_bed/master/bigdata
 
 ## git命令
 ```
-git add .; git commit -m "更新 xxx"; git push origin master
+git add .; git commit -m "更新 xxx"; git push origin main
 ```
 
