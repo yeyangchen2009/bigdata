@@ -33,7 +33,7 @@ const config = {
   // 要忽略的文件名列表
   ignoreFiles: ['_sidebar.md', 'README.md', '_navbar.md', '_coverpage.md'],
   // 要忽略的目录名列表
-  ignoreDirs: ['.git', 'node_modules', '.vscode', '.idea', 'dist', 'build','_media','js','lib','videos','html'],
+  ignoreDirs: ['.git', 'node_modules', '.vscode', '.idea', 'dist', 'build', '_media', 'js', 'lib', 'videos', 'html', 'img'],
   // 指定的路径名称（可以通过命令行参数传入）
   specifiedPath: process.argv[3] || '佛藏',
   // 缩进字符
@@ -57,7 +57,7 @@ function getFileSize(filePath) {
   try {
     const stats = fs.statSync(filePath);
     const size = stats.size;
-    
+
     if (size < 1024) {
       return { size: size, formatted: size + ' B' };
     } else if (size < 1024 * 1024) {
@@ -77,19 +77,19 @@ function getFileSize(filePath) {
  */
 function getDirectorySize(dirPath) {
   let totalSize = 0;
-  
+
   try {
     const list = fs.readdirSync(dirPath);
-    
+
     list.forEach(file => {
       // 检查是否在忽略列表中
       if (config.ignoreFiles.includes(file)) {
         return;
       }
-      
+
       const fullPath = path.resolve(dirPath, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory()) {
         // 检查目录是否在忽略列表中
         if (config.ignoreDirs.includes(file)) {
@@ -101,7 +101,7 @@ function getDirectorySize(dirPath) {
         totalSize += stat.size;
       }
     });
-    
+
     if (totalSize < 1024) {
       return { size: totalSize, formatted: totalSize + ' B' };
     } else if (totalSize < 1024 * 1024) {
@@ -137,19 +137,19 @@ function estimateWordCount(filePath) {
  */
 function estimateDirectoryWordCount(dirPath) {
   let totalWordCount = 0;
-  
+
   try {
     const list = fs.readdirSync(dirPath);
-    
+
     list.forEach(file => {
       // 检查是否在忽略列表中
       if (config.ignoreFiles.includes(file)) {
         return;
       }
-      
+
       const fullPath = path.resolve(dirPath, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory()) {
         // 检查目录是否在忽略列表中
         if (config.ignoreDirs.includes(file)) {
@@ -160,7 +160,7 @@ function estimateDirectoryWordCount(dirPath) {
         totalWordCount += estimateWordCount(fullPath);
       }
     });
-    
+
     return totalWordCount;
   } catch (err) {
     return 0;
@@ -179,15 +179,15 @@ function deleteFilesRecursively(dir, fileTypes) {
       console.log(`Directory not found: ${dir}`);
       return;
     }
-    
+
     const list = fs.readdirSync(dir);
-    
+
     list.forEach(file => {
       // 注意：删除文件时不应使用 ignoreFiles 列表，因为我们要删除的就是这些文件
       // 但仍需要检查目录是否在忽略列表中
       const fullPath = path.resolve(dir, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat && stat.isDirectory()) {
         // 检查目录是否在忽略列表中
         if (config.ignoreDirs.includes(file)) {
@@ -222,28 +222,28 @@ function getDirectoryStructure(dir, depth = 0) {
     children: [],
     depth: depth
   };
-  
+
   // 检查目录是否存在
   if (!fs.existsSync(dir)) {
     console.error(`Directory not found: ${dir}`);
     return result;
   }
-  
+
   const list = fs.readdirSync(dir);
-  
+
   // 分离文件和目录
   const files = [];
   const directories = [];
-  
+
   list.forEach(file => {
     // 检查是否在忽略列表中
     if (config.ignoreFiles.includes(file)) {
       return;
     }
-    
+
     const fullPath = path.resolve(dir, file);
     const stat = fs.statSync(fullPath);
-    
+
     if (stat && stat.isDirectory()) {
       // 检查目录是否在忽略列表中
       if (config.ignoreDirs.includes(file)) {
@@ -254,13 +254,13 @@ function getDirectoryStructure(dir, depth = 0) {
       files.push(file);
     }
   });
-  
+
   // 先处理文件（按字母顺序排序）
   files.sort().forEach(file => {
     const fullPath = path.resolve(dir, file);
     const fileSize = getFileSize(fullPath);
     const wordCount = estimateWordCount(fullPath);
-    
+
     result.children.push({
       name: path.basename(file, '.md'),
       path: fullPath,
@@ -271,13 +271,13 @@ function getDirectoryStructure(dir, depth = 0) {
       wordCount: wordCount
     });
   });
-  
+
   // 再处理目录（按字母顺序排序）
   directories.sort().forEach(directory => {
     const subdir = path.resolve(dir, directory);
     result.children.push(getDirectoryStructure(subdir, depth + 1));
   });
-  
+
   return result;
 }
 
@@ -288,19 +288,19 @@ function getDirectoryStructure(dir, depth = 0) {
  */
 function countMarkdownFiles(dirPath) {
   let count = 0;
-  
+
   try {
     const list = fs.readdirSync(dirPath);
-    
+
     list.forEach(file => {
       // 检查是否在忽略列表中
       if (config.ignoreFiles.includes(file)) {
         return;
       }
-      
+
       const fullPath = path.resolve(dirPath, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory()) {
         // 检查目录是否在忽略列表中
         if (config.ignoreDirs.includes(file)) {
@@ -311,7 +311,7 @@ function countMarkdownFiles(dirPath) {
         count++;
       }
     });
-    
+
     return count;
   } catch (err) {
     return 0;
@@ -326,44 +326,44 @@ function countMarkdownFiles(dirPath) {
  */
 function generateRootReadmeContent(structure, basePath) {
   let content = `# ${config.specifiedPath}\n\n`;
-  
+
   // 查找指定路径目录
   const specifiedPathDir = structure.children.find(item => item.type === 'directory' && item.name === config.specifiedPath);
-  
+
   if (specifiedPathDir) {
     // 生成四列表格，添加超链接
     content += '| 归类 | 书籍数量 | 预估字数 | 大小 |\n';
     content += '| --- | --- | --- | --- |\n';
-    
+
     // 计算指定路径下的总书籍数、字数和大小
     const totalBookCount = countMarkdownFiles(specifiedPathDir.path);
     const totalWordCount = estimateDirectoryWordCount(specifiedPathDir.path);
     const totalSize = getDirectorySize(specifiedPathDir.path);
-    
+
     // 添加指定路径的总信息，添加超链接到指定路径的README
     content += `| [${specifiedPathDir.name}](${config.specifiedPath}/README.md) | ${totalBookCount} | ${totalWordCount} 字 | ${totalSize.formatted} |\n`;
-    
+
     // 添加指定路径下各子目录的信息，添加超链接到各子目录的README
     const subDirectories = specifiedPathDir.children.filter(item => item.type === 'directory');
     subDirectories.forEach(subDir => {
       const subDirBookCount = countMarkdownFiles(subDir.path);
       const subDirWordCount = estimateDirectoryWordCount(subDir.path);
       const subDirSize = getDirectorySize(subDir.path);
-      
+
       content += `| [${subDir.name}](${config.specifiedPath}/${subDir.name}/README.md) | ${subDirBookCount} | ${subDirWordCount} 字 | ${subDirSize.formatted} |\n`;
     });
   }
-  
+
   content += '\n---\n\n';
   content += '> 本README文件由系统自动生成，请勿手动修改。';
-  content += '\n---\n';  
+  content += '\n---\n';
   content += '**📞 聯繫資訊**\n\n';
-  content += '\n\n';  
+  content += '\n\n';
   content += '如有任何問題或建議，歡迎通過以下方式聯繫：\n\n';
   content += '- 📧 微信: yeyang0802\n';
   content += '- 🐙 GitHub: [@yeyangchen2009](https://github.com/yeyangchen2009)\n\n';
   content += '![](/_media/lxfs.jpg)\n';
-  content += '\n\n';    
+  content += '\n\n';
   content += '**📄 版權聲明**\n\n';
   content += '本項目僅供學習和研究使用，如需商業用途請聯繫相關版權方。\n';
 
@@ -378,38 +378,38 @@ function generateRootReadmeContent(structure, basePath) {
  */
 function generateSpecifiedPathReadmeContent(structure, basePath) {
   let content = `# ${structure.name}\n\n`;
-  
+
   // 统计信息
   const fileCount = structure.children.filter(item => item.type === 'file').length;
   const dirCount = structure.children.filter(item => item.type === 'directory').length;
-  
+
   content += `本目录包含 ${fileCount} 个文档文件和 ${dirCount} 个子目录。\n\n`;
-  
+
   // 总览表格（四列：名称、书籍数、预估字数、大小）
   content += '## 总览\n\n';
   content += '| 名称 | 书籍数 | 预估字数 | 大小 |\n';
   content += '|------|--------|----------|------|\n';
-  
+
   // 计算整个指定路径目录的统计信息
   const totalWordCount = estimateDirectoryWordCount(structure.path);
   const totalSize = getDirectorySize(structure.path);
   const totalBookCount = countMarkdownFiles(structure.path);
-  
+
   // 修改这里：为"佛藏"名称添加超链接到根目录的README
   content += `| [${structure.name}](/README.md) | ${totalBookCount} | ${totalWordCount} 字 | ${totalSize.formatted} |\n\n`;
-  
+
   // 为每个子目录生成单独的表格
   const directories = structure.children.filter(item => item.type === 'directory');
   directories.forEach(dir => {
     content += `## ${dir.name}\n\n`;
     content += '| 文件名称 | 预估字数 | 大小 |\n';
     content += '|----------|----------|------|\n';
-    
+
     // 检查子目录是否包含文件或子目录
     const subdirStructure = getDirectoryStructure(dir.path);
     const files = subdirStructure.children.filter(item => item.type === 'file');
     const subdirs = subdirStructure.children.filter(item => item.type === 'directory');
-    
+
     if (files.length > 0) {
       // 如果子目录包含文件，显示文件列表
       files.forEach(file => {
@@ -423,13 +423,13 @@ function generateSpecifiedPathReadmeContent(structure, basePath) {
       // 修改这里：添加链接到子目录README的条目
       content += `| [总计：${dirBookCount} 部书](${path.relative(basePath, dir.path).replace(/\\/g, '/')}/README.md) | ${dirWordCount} 字 | ${dirSize.formatted} |\n`;
     }
-    
+
     content += '\n';
   });
-  
+
   content += '---\n\n';
   content += '> 本README文件由系统自动生成，请勿手动修改。\n';
-  
+
   return content;
 }
 
@@ -441,48 +441,48 @@ function generateSpecifiedPathReadmeContent(structure, basePath) {
  */
 function generateIntermediateReadmeContent(structure, basePath) {
   let content = `# ${structure.name}\n\n`;
-  
+
   // 统计信息
   const fileCount = structure.children.filter(item => item.type === 'file').length;
   const dirCount = structure.children.filter(item => item.type === 'directory').length;
-  
+
   content += `本目录包含 ${fileCount} 个文档文件和 ${dirCount} 个子目录。\n\n`;
-  
+
   // 生成文件列表表格（添加文件名、预估字数、大小信息）
   const files = structure.children.filter(item => item.type === 'file');
   if (files.length > 0) {
     content += '## 文件列表\n\n';
     content += '| 文件名称 | 预估字数 | 大小 |\n';
     content += '|---------|---------|------|\n';
-    
+
     files.forEach(file => {
       content += `| [${file.name}](${path.relative(basePath, file.path).replace(/\\/g, '/')}) | ${file.wordCount} 字 | ${file.formattedSize} |\n`;
     });
-    
+
     content += '\n';
   }
-  
+
   // 为每个子目录生成统计信息表格
   const directories = structure.children.filter(item => item.type === 'directory');
   if (directories.length > 0) {
     content += '## 子目录统计\n\n';
     content += '| 目录名称 | 书籍数 | 预估字数 | 大小 |\n';
     content += '|---------|--------|----------|------|\n';
-    
+
     directories.forEach(dir => {
       const dirBookCount = countMarkdownFiles(dir.path);
       const dirWordCount = estimateDirectoryWordCount(dir.path);
       const dirSize = getDirectorySize(dir.path);
-      
+
       content += `| [${dir.name}](${path.relative(basePath, dir.path).replace(/\\/g, '/')}/README.md) | ${dirBookCount} | ${dirWordCount} 字 | ${dirSize.formatted} |\n`;
     });
-    
+
     content += '\n';
   }
-  
+
   content += '---\n\n';
   content += '> 本README文件由系统自动生成，请勿手动修改。\n';
-  
+
   return content;
 }
 
@@ -494,42 +494,42 @@ function generateIntermediateReadmeContent(structure, basePath) {
  */
 function generateNormalReadmeContent(structure, basePath) {
   let content = `# ${structure.name}\n\n`;
-  
+
   // 统计信息
   const fileCount = structure.children.filter(item => item.type === 'file').length;
   const dirCount = structure.children.filter(item => item.type === 'directory').length;
-  
+
   content += `本目录包含 ${fileCount} 个文档文件和 ${dirCount} 个子目录。\n\n`;
-  
+
   // 如果有文件，生成文件列表表格（添加文件名、预估字数、大小信息）
   const files = structure.children.filter(item => item.type === 'file');
   if (files.length > 0) {
     content += '## 文件列表\n\n';
     content += '| 文件名称 | 预估字数 | 大小 |\n';
     content += '|---------|---------|------|\n';
-    
+
     files.forEach(file => {
       content += `| [${file.name}](${path.relative(basePath, file.path).replace(/\\/g, '/')}) | ${file.wordCount} 字 | ${file.formattedSize} |\n`;
     });
-    
+
     content += '\n';
   }
-  
+
   // 如果有目录，生成目录列表
   const directories = structure.children.filter(item => item.type === 'directory');
   if (directories.length > 0) {
     content += '## 子目录\n\n';
-    
+
     directories.forEach(dir => {
       content += `* [${dir.name}](${path.relative(basePath, dir.path).replace(/\\/g, '/')}/README.md)\n`;
     });
-    
+
     content += '\n';
   }
-  
+
   content += '---\n\n';
   content += '> 本README文件由系统自动生成，请勿手动修改。\n';
-  
+
   return content;
 }
 
@@ -541,29 +541,29 @@ function generateNormalReadmeContent(structure, basePath) {
  */
 function generateRootSidebarContent(structure, basePath) {
   let content = '';
-  
+
   // 根目录的readme作为首页
   content += '* [首页](/README.md)\n';
-  
+
   // 指定路径的readme
   const specifiedPathDir = structure.children.find(item => item.type === 'directory' && item.name === config.specifiedPath);
   if (specifiedPathDir) {
     content += `* [${config.specifiedPath}](${config.specifiedPath}/README.md)\n`;
-    
+
     // 添加分隔线
     content += '\n---\n\n';
-    
+
     // 添加指定路径下所有子目录的README链接
     const subDirectories = specifiedPathDir.children.filter(item => item.type === 'directory');
     subDirectories.forEach(subDir => {
       content += `* [${subDir.name}](${config.specifiedPath}/${subDir.name}/README.md)\n`;
     });
   }
-  
+
   // 在sidebar的最后添加关于我链接
   content += '\n---\n\n';
   content += '* [关于我](/AboutMe.md)\n';
-  
+
   return content;
 }
 
@@ -575,14 +575,14 @@ function generateRootSidebarContent(structure, basePath) {
  */
 function generateSubdirSidebarContent(structure, basePath) {
   let content = '';
-  
+
   // 计算相对路径以确定正确的返回链接
   const relativePath = path.relative(basePath, structure.path).replace(/\\/g, '/');
   const pathParts = relativePath.split('/');
-  
+
   // 添加返回根目录链接（使用相对路径格式）
   content += '* [返回根目录](/README.md)\n';
-  
+
   // 生成返回上一级链接（使用相对路径格式）
   if (pathParts.length <= 1) {
     // 如果只有一层深度，返回上一级就是根目录
@@ -592,16 +592,16 @@ function generateSubdirSidebarContent(structure, basePath) {
     const parentPath = pathParts.slice(0, -1).join('/');
     content += `* [返回上一级](${parentPath}/README.md)\n`;
   }
-  
+
   // 添加完整路径名称链接到该文件夹下的README（使用相对路径格式）
   if (relativePath) {
     content += `* [${relativePath}](${relativePath}/README.md)\n`;
   } else {
     content += `* [${config.specifiedPath}](${config.specifiedPath}/README.md)\n`;
   }
-  
+
   content += '\n---\n\n';
-  
+
   // 处理文件
   const files = structure.children.filter(item => item.type === 'file');
   if (files.length > 0) {
@@ -609,10 +609,10 @@ function generateSubdirSidebarContent(structure, basePath) {
       const relativeFilePath = path.relative(basePath, item.path).replace(/\\/g, '/');
       content += `* [${item.name}](${relativeFilePath})\n`;
     });
-    
+
     content += '\n';
   }
-  
+
   // 处理子目录（去掉"子目录"标题行）
   const directories = structure.children.filter(item => item.type === 'directory');
   if (directories.length > 0) {
@@ -621,11 +621,11 @@ function generateSubdirSidebarContent(structure, basePath) {
       content += `* [${dir.name}](${relativeDirPath}/README.md)\n`;
     });
   }
-  
+
   // 在sidebar的最后添加关于我链接
   content += '\n---\n\n';
   content += '* [关于我](/AboutMe.md)\n';
-  
+
   return content;
 }
 
@@ -636,14 +636,14 @@ function generateSubdirSidebarContent(structure, basePath) {
  */
 function generateRootNavbarContent(structure) {
   let content = '';
-  
+
   // 添加首页和目录链接
   content += '- [首页](/)\n';
   content += '- [目录](/README.md)\n';
-  
+
   // 查找指定路径目录
   const specifiedPathDir = structure.children.find(item => item.type === 'directory' && item.name === config.specifiedPath);
-  
+
   if (specifiedPathDir) {
     // 为指定路径下的每个子目录生成导航项（主分类）
     const subDirectories = specifiedPathDir.children.filter(item => item.type === 'directory');
@@ -652,14 +652,14 @@ function generateRootNavbarContent(structure) {
       content += '\n';
       // 添加一级导航项（主分类）
       content += `- [${subDir.name}](${config.specifiedPath}/${subDir.name}/README.md)\n`;
-      
+
       // 处理子目录中的内容项（第二层）
       // 如果是文件，直接作为子分类显示
       const files = subDir.children.filter(item => item.type === 'file');
       files.forEach(file => {
         content += `  - [${file.name}](${config.specifiedPath}/${subDir.name}/${file.name}.md)\n`;
       });
-      
+
       // 如果是目录，显示其README链接作为子分类
       const subDirs = subDir.children.filter(item => item.type === 'directory');
       subDirs.forEach(dir => {
@@ -667,7 +667,7 @@ function generateRootNavbarContent(structure) {
       });
     });
   }
-  
+
   return content;
 }
 
@@ -679,12 +679,12 @@ function generateRootNavbarContent(structure) {
  */
 function generateDocs(structure, basePath, isRoot = false) {
   const operationType = config.operationType.toLowerCase();
-  
+
   // 生成README文件
   if (operationType === 'all' || operationType === 'default' || operationType === 'readme') {
     console.log(`Generating README for: ${structure.path}`);
     let readmeContent;
-    
+
     if (isRoot) {
       // 根目录
       readmeContent = generateRootReadmeContent(structure, basePath);
@@ -698,17 +698,17 @@ function generateDocs(structure, basePath, isRoot = false) {
       // 普通子目录（只有文件，没有子目录）
       readmeContent = generateNormalReadmeContent(structure, basePath);
     }
-    
+
     const readmePath = path.resolve(structure.path, 'README.md');
     fs.writeFileSync(readmePath, readmeContent, config.encoding);
     console.log(`Created: ${readmePath}`);
   }
-  
+
   // 生成侧边栏文件
   if (operationType === 'all' || operationType === 'default' || operationType === 'sidebar') {
     console.log(`Generating sidebar for: ${structure.path}`);
     let sidebarContent;
-    
+
     if (isRoot) {
       // 根目录
       sidebarContent = generateRootSidebarContent(structure, basePath);
@@ -719,12 +719,12 @@ function generateDocs(structure, basePath, isRoot = false) {
       // 子目录
       sidebarContent = generateSubdirSidebarContent(structure, basePath);
     }
-    
+
     const sidebarPath = path.resolve(structure.path, '_sidebar.md');
     fs.writeFileSync(sidebarPath, sidebarContent, config.encoding);
     console.log(`Created: ${sidebarPath}`);
   }
-  
+
   // 生成导航栏文件
   if (operationType === 'all' || operationType === 'navbar' || operationType === 'nav') {
     // 只在根目录生成导航栏文件
@@ -743,7 +743,7 @@ function generateDocs(structure, basePath, isRoot = false) {
     fs.writeFileSync(navbarPath, navbarContent, config.encoding);
     console.log(`Created: ${navbarPath}`);
   }
-  
+
   // 递归处理子目录（仅在生成文件时递归，删除文件时不递归）
   if (operationType !== 'del' && operationType !== 'nav') {
     structure.children.forEach(item => {
@@ -758,23 +758,23 @@ function generateDocs(structure, basePath, isRoot = false) {
 function main() {
   const targetDir = path.resolve(rootDir);
   const operationType = config.operationType.toLowerCase();
-  
+
   // 验证操作类型参数
   const validTypes = ['default', 'all', 'readme', 'sidebar', 'navbar', 'nav', 'del'];
   if (!validTypes.includes(operationType)) {
     console.error(`Invalid operation type: ${operationType}. Valid types are: ${validTypes.join(', ')}`);
     process.exit(1);
   }
-  
+
   console.log(`Starting operation from: ${targetDir}`);
   console.log(`Operation type: ${operationType}`);
-  
+
   // 检查目标目录是否存在
   if (!fs.existsSync(targetDir)) {
     console.error(`Target directory does not exist: ${targetDir}`);
     process.exit(1);
   }
-  
+
   // 如果是删除操作，直接调用删除函数
   if (operationType === 'del') {
     console.log('Deleting files...');
@@ -782,7 +782,7 @@ function main() {
     console.log('File deletion completed.');
     return;
   }
-  
+
   // 如果是单独生成 navbar，只需要生成根目录的 navbar
   if (operationType === 'nav') {
     console.log('Generating navbar file only...');
@@ -794,13 +794,13 @@ function main() {
     console.log('Navbar generation completed.');
     return;
   }
-  
+
   // 获取目录结构
   const structure = getDirectoryStructure(targetDir);
-  
+
   // 生成文档
   generateDocs(structure, targetDir, true); // 第一个参数是根目录
-  
+
   console.log('Document generation completed.');
 }
 

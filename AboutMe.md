@@ -15,3 +15,27 @@
   frameborder="0"
   allowfullscreen>
 </iframe>
+
+
+## 图床替换
+
+```
+https://raw.githubusercontent.com/yeyangchen2009/img_bed/master/bigdata
+```
+> Ctrl+H
+```
+../../img
+```
+---
+```
+![](https://raw.githubusercontent.com/yeyangchen2009/img_bed/master/bigdata/spark调优/sp20251119_174652_078.png)
+
+
+![](../../img/spark调优/image-20240731105537998.png)
+```
+
+## git命令
+```
+git add .; git commit -m "更新 xxx"; git push origin master
+```
+
